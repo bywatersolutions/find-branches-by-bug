@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use Mojolicious::Lite;
+use List::Util qw(uniq);
 
 get '/:bug' => sub {
     my ($c) = @_;
@@ -18,7 +19,7 @@ get '/:bug' => sub {
     $_ =~ s/^\s+|\s+$//g for @branches;
 
     @branches =
-      sort { ( split( '-v', $b ) )[1] cmp( split( '-v', $a ) )[1] } @branches;
+      uniq sort { ( split( '-v', $b ) )[1] cmp( split( '-v', $a ) )[1] } @branches;
 
     $c->render( json => \@branches );
 };
