@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>ByWater Solutions - Search for branches by bug number</title>
+        <meta charset="utf-8">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+        <link rel="stylesheet" href="my.css">
+    </head>
+
+    <body class="text-center">
+        <form class="form-bug">
+          <img class="mb-4" src="https://media.glassdoor.com/sqll/1376691/bywater-solutions-squarelogo-1474902894881.png" alt="" width="72" height="72">
+          <h1 class="h3 mb-3 font-weight-normal">Find Branches by Bug</h1>
+          <label for="bug-number" class="sr-only">Bug #</label>
+          <input type="text" id="bug-number" class="form-control" placeholder="Bug Number" required autofocus>
+          <label for="shortname" class="sr-only">Shortname</label>
+          <input type="text" id="shortname" class="form-control" placeholder="Shortname">
+          <button id="search-btn" class="btn btn-lg btn-primary btn-block" type="submit">Find branches</button>
+          <button id="results-btn" class="btn btn-lg btn-primary btn-block" type="submit" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Loading...
+          </button>
+
+          <p/>
+
+          <ul id="search-results" class="list-group">
+            <li class="list-group-item active">Branches</li>
+            <span id="branch-results">
+                <li class="list-group-item">Dapibus ac facilisis in</li>
+                <li class="list-group-item">Morbi leo risus</li>
+                <li class="list-group-item">Porta ac consectetur ac</li>
+                <li class="list-group-item">Vestibulum at eros</li>
+            </span>
+          </ul>
+
+        </form>
+
+    </body>
+
+    <script>
+        $("#results-btn").hide();
+        $("#search-results").hide();
+        $("#search-btn").on("click", function(e){
+            e.preventDefault();
+
+            $("#search-results").hide();
+
+            const bug = $("#bug-number").val();
+            const shortname = $("#shortname").val() || 'bywater';
+
+            console.log("BUG: " + bug);
+            console.log("SHORTNAME: " + shortname);
+
+            if ( ! bug ) return;
+
+            $("#search-btn").hide();
+            $("#results-btn").show();
+
+            const url = `http://find-branches-by-bugs.bwsdocker1.bywatersolutions.com/${bug}/${shortname}`;
+            $.getJSON( url, function( data ) {
+                let html = "";
+                for (i = 0; i < data.length; i++ ) {
+                    html += `<li class="list-group-item">${data[i]}</li>`;
+                }
+                $("#branch-results").html(html);
+                $("#search-results").show();
+            }).fail(function(jqXHR, textStatus) {
+                alert( "Request failed: " + textStatus );
+            }).always(function() {
+                $("#search-btn").show();
+                $("#results-btn").hide();
+            });
+
+        });
+    </script>
+</html>
