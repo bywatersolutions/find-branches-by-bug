@@ -14,7 +14,7 @@ get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
     warn "BUG: $bug";
     warn "SHORTNAME: $shortname";
 
-    my @response = qx{git log --all --grep "Bug $bug" --pretty=oneline};
+    my @response = qx{git log --all --grep "Bug $bug:" --pretty=oneline};
 
     if ( @response ) {
         my @commits = map { ( split( ' ', $_ ) )[0] } @response;
