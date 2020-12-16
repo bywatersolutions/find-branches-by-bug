@@ -11,6 +11,9 @@ get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
     my $bug       = $c->param('bug');
     my $shortname = $c->param('shortname');
 
+    warn "BUG: $bug";
+    warn "SHORTNAME: $shortname";
+
     my @response = qx{git log --all --grep "Bug $bug" --pretty=oneline};
 
     if ( @response ) {
