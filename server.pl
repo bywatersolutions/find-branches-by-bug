@@ -13,28 +13,32 @@ get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
 
     my @response = qx{git log --all --grep "Bug $bug" --pretty=oneline};
 
-    my @commits = map { ( split( ' ', $_ ) )[0] } @response;
+    if ( @response ) {
+        my @commits = map { ( split( ' ', $_ ) )[0] } @response;
 
-    my @branches = map {
-        map { ( split( '/', $_ ) )[1] }
-          qx{git branch -r --contains $_}
-    } @commits;
+        my @branches = map {
+            map { ( split( '/', $_ ) )[1] }
+              qx{git branch -r --contains $_}
+        } @commits;
 
-    warn "FOUND BRANCHES: " . Data::Dumper::Dumper( \@branches );
+        warn "FOUND BRANCHES: " . Data::Dumper::Dumper( \@branches );
 
-    $_ =~ s/^\s+|\s+$//g for @branches;
+        $_ =~ s/^\s+|\s+$//g for @branches;
 
-    if (@branches) {
-        @branches =
-          uniq sort { ( split( '-v', $b ) )[1] cmp( split( '-v', $a ) )[1] }
-          @branches;
+        if (@branches) {
+            @branches =
+              uniq sort { ( split( '-v', $b ) )[1] cmp( split( '-v', $a ) )[1] }
+              @branches;
 
-        @branches = grep( /^$shortname/, @branches );
+            @branches = grep( /^$shortname/, @branches );
+        }
+
+        warn "RETURNING: " . Data::Dumper::Dumper( \@branches );
+
+        $c->render( json => \@branches );
+    } else {
+        $c->render( json => [] );
     }
-
-    warn "RETURNING: " . Data::Dumper::Dumper( \@branches );
-
-    $c->render( json => \@branches );
 };
 
 plugin Cron => (
