@@ -2,6 +2,7 @@
 
 use Mojolicious::Lite -signatures;
 use List::Util qw(uniq);
+use Data::Dumper;
 
 app->config( hypnotoad => { listen => ['http://*:3000'] } );
 
@@ -19,13 +20,19 @@ get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
           qx{git branch -r --contains $_}
     } @commits;
 
+    warn "FOUND BRANCHES: " . Data::Dumper::Dumper( \@branches );
+
     $_ =~ s/^\s+|\s+$//g for @branches;
 
-    @branches =
-      uniq sort { ( split( '-v', $b ) )[1] cmp( split( '-v', $a ) )[1] }
-      @branches;
+    if (@branches) {
+        @branches =
+          uniq sort { ( split( '-v', $b ) )[1] cmp( split( '-v', $a ) )[1] }
+          @branches;
 
-    @branches = grep( /^$shortname/, @branches );
+        @branches = grep( /^$shortname/, @branches );
+    }
+
+    warn "RETURNING: " . Data::Dumper::Dumper( \@branches );
 
     $c->render( json => \@branches );
 };
