@@ -66,7 +66,7 @@
                 let html = "";
                 if ( data.length ) {
                     for (i = 0; i < data.length; i++ ) {
-                        html += `<li class="list-group-item">${data[i]}</li>`;
+                        html += `<li class="list-group-item"><a href="https://github.com/bywatersolutions/bywater-koha/commits/${data[i]}">${data[i]}</a></li>`;
                     }
                 } else {
                     html += `<li class="list-group-item">No branches found!</li>`;
