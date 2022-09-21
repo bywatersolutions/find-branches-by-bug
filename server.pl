@@ -26,6 +26,7 @@ get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
 
         warn "FOUND BRANCHES: " . Data::Dumper::Dumper( \@branches );
 
+        # Strip whitespace from start and end of each branch name
         $_ =~ s/^\s+|\s+$//g for @branches;
 
         if (@branches) {
