@@ -7,20 +7,25 @@ use Data::Dumper;
 app->config( hypnotoad => { listen => ['http://*:3000'] } );
 
 options '*' => sub {
-  my $self = shift;
+    my $c = shift;
 
+    $c->res->headers->access_control_allow_origin('*');
+    $c->res->headers->header('Access-Control-Allow-Credentials' => 'true');
+    $c->res->headers->header('Access-Control-Allow-Headers' => '*');
+    $c->res->headers->header('Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT');
+    $c->res->headers->header('Access-Control-Allow-Origin' => '*');
+    $c->res->headers->header('Access-Control-Max-Age' => '1728000');
 
-  $self->res->headers->access_control_allow_origin('*');
-  $self->res->headers->header('Access-Control-Allow-Credentials' => 'true');
-  $self->res->headers->header('Access-Control-Allow-Headers' => '*');
-  $self->res->headers->header('Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT');
-  $self->res->headers->header('Access-Control-Allow-Origin' => '*');
-  $self->res->headers->header('Access-Control-Max-Age' => '1728000');
-
-  $self->respond_to(any => { data => '', status => 200 });
+    $c->respond_to(any => { data => '', status => 200 });
 };
 
 get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
+    $c->res->headers->access_control_allow_origin('*');
+    $c->res->headers->header('Access-Control-Allow-Credentials' => 'true');
+    $c->res->headers->header('Access-Control-Allow-Headers' => '*');
+    $c->res->headers->header('Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT');
+    $c->res->headers->header('Access-Control-Allow-Origin' => '*');
+    $c->res->headers->header('Access-Control-Max-Age' => '1728000');
 
     my $bug       = $c->param('bug');
     my $shortname = $c->param('shortname');
