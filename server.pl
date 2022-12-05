@@ -7,6 +7,10 @@ use Data::Dumper;
 app->config( hypnotoad => { listen => ['http://*:3000'] } );
 
 get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
+    $c->res->headers->header('Access-Control-Allow-Origin' => '*');
+    $c->res->headers->access_control_allow_origin('*');
+    $c->res->headers->header('Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT');
+    $c->res->headers->header('Access-Control-Allow-Headers' => 'Content-Type' => 'application/x-www-form-urlencoded');
 
     my $bug       = $c->param('bug');
     my $shortname = $c->param('shortname');
