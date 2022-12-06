@@ -61,7 +61,7 @@
             $("#search-btn").hide();
             $("#results-btn").show();
 
-            const url = `https://find-branches-by-bugs-api.tools.bywatersolutions.com/${bug}/${shortname}`;
+            const url = `/${bug}/${shortname}`;
             $.getJSON( url, function( data ) {
                 let html = "";
                 if ( data.length ) {
