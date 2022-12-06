@@ -6,6 +6,14 @@ use Data::Dumper;
 
 app->config( hypnotoad => { listen => ['http://*:3000'] } );
 
+get '/' => sub ($c) {
+  $c->reply->static('index.html');
+};
+
+get '/my.css' => sub ($c) {
+  $c->reply->static('my.css');
+};
+
 hook after_dispatch => sub {
     my $c = shift;
 

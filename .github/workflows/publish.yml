@@ -77,4 +77,4 @@ jobs:
           push: true
           tags: ghcr.io/bywatersolutions/find-branches-by-bug-web:latest
           labels: ${{ steps.meta.outputs.labels }}
-          file: web/Dockerfile
+          file: public/Dockerfile
