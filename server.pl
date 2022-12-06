@@ -6,6 +6,17 @@ use Data::Dumper;
 
 app->config( hypnotoad => { listen => ['http://*:3000'] } );
 
+hook after_dispatch => sub {
+    my $c = shift;
+
+    $c->res->headers->access_control_allow_origin('*');
+    $c->res->headers->header('Access-Control-Allow-Credentials' => 'true');
+    $c->res->headers->header('Access-Control-Allow-Headers' => '*');
+    $c->res->headers->header('Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT');
+    $c->res->headers->header('Access-Control-Allow-Origin' => '*');
+    $c->res->headers->header('Access-Control-Max-Age' => '1728000');
+};
+
 options '*' => sub {
     my $c = shift;
 
@@ -20,13 +31,6 @@ options '*' => sub {
 };
 
 get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
-    $c->res->headers->access_control_allow_origin('*');
-    $c->res->headers->header('Access-Control-Allow-Credentials' => 'true');
-    $c->res->headers->header('Access-Control-Allow-Headers' => '*');
-    $c->res->headers->header('Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT');
-    $c->res->headers->header('Access-Control-Allow-Origin' => '*');
-    $c->res->headers->header('Access-Control-Max-Age' => '1728000');
-
     my $bug       = $c->param('bug');
     my $shortname = $c->param('shortname');
 
