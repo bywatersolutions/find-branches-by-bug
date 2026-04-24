@@ -4,7 +4,7 @@ use Mojolicious::Lite -signatures;
 use List::Util qw(uniq);
 use Data::Dumper;
 
-app->config( hypnotoad => { listen => ['http://*:3000'] } );
+app->config( hypnotoad => { listen => ['http://*:3000'], workers => 8 } );
 
 get '/' => sub ($c) {
   $c->reply->static('index.html');
