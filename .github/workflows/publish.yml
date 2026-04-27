@@ -10,7 +10,21 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: perl:5.32
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Perl dependencies
+        run: cpanm --notest --quiet --installdeps --with-develop --with-test .
+
+      - name: Run tests
+        run: prove -v t/
+
   build-and-push-image-server:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,6 +59,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   build-and-push-image-web:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
