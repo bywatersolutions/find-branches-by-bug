@@ -50,22 +50,18 @@ get '/:bug/:shortname' => { shortname => 'bywater' } => sub ($c) {
     if ( @response ) {
         my @commits = map { ( split( ' ', $_ ) )[0] } @response;
 
-        my @branches = map {
-            map { ( split( '/', $_ ) )[1] }
-              qx{git branch -r --contains $_}
-        } @commits;
+        my @branches;
+        for my $commit (@commits) {
+            chomp( my @refs = qx{git for-each-ref --contains=$commit --format='%(refname:short)' 'refs/remotes/*/$shortname-*'} );
+            push @branches, map { ( split( '/', $_, 2 ) )[1] } @refs;
+        }
 
         warn "FOUND BRANCHES: " . Data::Dumper::Dumper( \@branches );
-
-        # Strip whitespace from start and end of each branch name
-        $_ =~ s/^\s+|\s+$//g for @branches;
 
         if (@branches) {
             @branches =
               uniq sort { ( split( '-v', $b ) )[1] cmp( split( '-v', $a ) )[1] }
               @branches;
-
-            @branches = grep( /^$shortname/, @branches );
         }
 
         warn "RETURNING: " . Data::Dumper::Dumper( \@branches );
