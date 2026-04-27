@@ -50,6 +50,81 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: Build Docker image (load locally for smoke test)
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          load: true
+          tags: find-branches-by-bug:smoke
+          cache-to: type=gha,mode=max
+          cache-from: type=gha
+
+      - name: Smoke test server against live container
+        run: |
+          set -euo pipefail
+          docker run -d --name fbb -p 3000:3000 find-branches-by-bug:smoke
+
+          echo "Waiting for server to become ready..."
+          ready=0
+          for i in $(seq 1 60); do
+            if curl -sf -o /dev/null http://localhost:3000/; then
+              ready=1
+              echo "Server is up after ${i} attempt(s)"
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "Server never became ready. Container logs:"
+            docker logs fbb || true
+            exit 1
+          fi
+
+          fail=0
+
+          echo "--- Bug 0000 (expect empty array) ---"
+          body=$(curl -sS http://localhost:3000/0000)
+          echo "Response: $body"
+          if [ "$(echo "$body" | jq -c .)" != "[]" ]; then
+            echo "FAIL: expected [] for Bug 0000"
+            fail=1
+          fi
+
+          echo "--- Bug 0 (expect empty array) ---"
+          body=$(curl -sS http://localhost:3000/0)
+          echo "Response: $body"
+          if [ "$(echo "$body" | jq -c .)" != "[]" ]; then
+            echo "FAIL: expected [] for Bug 0"
+            fail=1
+          fi
+
+          # Bugs we expect to be present in bywater-* branches. If either
+          # ever stops being true, swap in another known-backported bug
+          # number rather than removing the assertion.
+          for known_bug in 34545 39789; do
+            echo "--- Bug ${known_bug} (expect non-empty array of bywater-* branches) ---"
+            body=$(curl -sS "http://localhost:3000/${known_bug}")
+            echo "Response: $body"
+            if ! echo "$body" | jq -e 'type == "array" and length > 0' >/dev/null; then
+              echo "FAIL: expected non-empty array for Bug ${known_bug}"
+              fail=1
+            elif ! echo "$body" | jq -e 'all(.[]; startswith("bywater-"))' >/dev/null; then
+              echo "FAIL: expected all branches to start with 'bywater-' for default shortname"
+              fail=1
+            fi
+          done
+
+          echo "--- Container logs ---"
+          docker logs fbb || true
+
+          docker rm -f fbb
+
+          exit $fail
+
+      - name: Stop smoke-test container
+        if: always()
+        run: docker rm -f fbb || true
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
@@ -57,6 +132,8 @@ jobs:
           push: true
           tags: ghcr.io/bywatersolutions/find-branches-by-bug:latest
           labels: ${{ steps.meta.outputs.labels }}
+          cache-to: type=gha,mode=max
+          cache-from: type=gha
 
   build-and-push-image-web:
     needs: test
